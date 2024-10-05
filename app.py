@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, VideoNotAvailable
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -20,6 +20,10 @@ def fetch_captions():
         # Fetch captions
         captions = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])  # specify language here
         return jsonify(captions)
+    except NoTranscriptFound:
+        return jsonify({'error': 'No transcript available for this video.'}), 404
+    except VideoNotAvailable:
+        return jsonify({'error': 'The video is not available.'}), 404
     except Exception as e:
         print(f"Error fetching captions: {e}")
         return jsonify({'error': 'Failed to fetch captions'}), 500
